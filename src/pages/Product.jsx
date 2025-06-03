@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import productApi from "../api/productApi";
-
+import { Link, useNavigate  } from "react-router-dom";
+import { getAllProducts }  from "../service/productService";
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    productApi
-      .getAll()
-      .then(res => setProducts(res.data.data))
-
-      .catch(err => {
-        setError(err.response?.data?.message || "Lỗi khi tải sản phẩm");
-      })
+    setLoading(true);
+    getAllProducts()
+      .then(setProducts)
+      .catch((err) =>
+        setError(err?.response?.data?.message || "Lỗi khi tải sản phẩm")
+      )
       .finally(() => setLoading(false));
   }, []);
-  console.log(products);
+  
+  const handleProductClick = (productId) => {
+    if (!productId) return; 
+    navigate(`/product/${productId}`);
+  }
 
   return (
     <div className="flex w-full flex-col items-center justify-center bg-[#e0f2fe] p-4">
@@ -46,15 +49,18 @@ const Product = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => {
+            {products.map((product) => {
               const discountedPrice = product.isDiscount
-                ? product.productPrice - (product.productPrice * product.discountPercent) / 100
+                ? product.productPrice -
+                  (product.productPrice * product.discountPercent) / 100
                 : product.productPrice;
 
               return (
                 <div
                   key={product.productId}
                   className="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
+                  onClick={() => handleProductClick(product.productId)}
+                  style={{ cursor: product.productId ? "pointer" : "not-allowed" }}
                 >
                   <Link
                     className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
@@ -62,7 +68,7 @@ const Product = () => {
                   >
                     <img
                       className="object-cover w-full"
-                      src={product.imageUrl}
+                      src={product.productImage ? `/img/${product.productImage}` : "default-image.jpg"}
                       alt={product.productName}
                     />
                     {product.isDiscount && (
@@ -113,6 +119,7 @@ const Product = () => {
                     {/* Thêm vào giỏ */}
                     <Link
                       to="/"
+                      onClick={(e) => e.stopPropagation()} 
                       className="mt-4 flex items-center justify-center rounded-md bg-sky-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-sky-700 transition"
                     >
                       <svg

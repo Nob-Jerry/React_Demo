@@ -1,29 +1,31 @@
-import { useEffect, useState } from 'react';
-import userApi from '../api/userApi';
+import { useEffect, useState } from "react";
+import userApi from "../api/userApi";
+import Swal from "sweetalert2";
 
 export default function UserDetailPage() {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem("user"));
+  const role = user?.role;
   const username = user?.username;
 
   if (!username) {
-    throw new Error('Username not found in localStorage');
+    throw new Error("Username not found in localStorage");
   }
 
   const [formData, setFormData] = useState({
-    userId: '',
-    username: '',
-    email: '',
-    fullname: '',
-    phone: '',
-    address: '',
-    role: '',
+    userId: "",
+    username: "",
+    email: "",
+    fullname: "",
+    phone: "",
+    address: "",
+    role: "",
     isActive: false,
-    createdAt: '',
+    createdAt: "",
   });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,19 +34,19 @@ export default function UserDetailPage() {
         const user = res.data.data;
 
         setFormData({
-          userId: user.userId || '',
-          username: user.username || '',
-          email: user.email || '',
-          fullname: user.fullname || '',
-          phone: user.phone || '',
-          address: user.address || '',
-          role: user.role || '',
+          userId: user.userId || "",
+          username: user.username || "",
+          email: user.email || "",
+          fullname: user.fullname || "",
+          phone: user.phone || "",
+          address: user.address || "",
+          role: user.role || "",
           isActive: user.isActive || false,
-          createdAt: user.createdAt || '',
+          createdAt: user.createdAt || "",
         });
       } catch (err) {
-        console.error('Lỗi khi tải người dùng:', err);
-        setMessage('Không thể tải dữ liệu người dùng.');
+        console.error("Lỗi khi tải người dùng:", err);
+        setMessage("Không thể tải dữ liệu người dùng.");
       } finally {
         setLoading(false);
       }
@@ -57,20 +59,42 @@ export default function UserDetailPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'isActive' ? value === 'true' : value,
+      [name]: name === "isActive" ? value === "true" : value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const result = await Swal.fire({
+      title: "Xác nhận lưu thay đổi?",
+      text: "Bạn có chắc muốn lưu các thay đổi này?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Lưu",
+      cancelButtonText: "Hủy",
+    });
+    if (!result.isConfirmed) return;
+
     setSaving(true);
-    setMessage('');
+    setMessage("");
     try {
       await userApi.update(formData);
-      setMessage('Lưu thành công!');
+      setMessage("Lưu thành công!");
+      Swal.fire({
+        icon: "success",
+        title: "Đã lưu thay đổi!",
+        showConfirmButton: false,
+        timer: 1200,
+      });
+      // window.location.reload();
     } catch (err) {
-      console.error('Lỗi khi lưu:', err);
-      setMessage('Lưu thất bại!');
+      console.error("Lỗi khi lưu:", err);
+      setMessage("Lưu thất bại!");
+      Swal.fire({
+        icon: "error",
+        title: "Lưu thất bại!",
+        text: "Có lỗi xảy ra khi lưu.",
+      });
     } finally {
       setSaving(false);
     }
@@ -80,78 +104,79 @@ export default function UserDetailPage() {
     return <div className="text-center py-10">Đang tải dữ liệu...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-100 to-sky-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-sky-100 flex items-center justify-center p-6">
       <form
         onSubmit={handleSubmit}
-        className="bg-white/60 backdrop-blur-md shadow-lg p-6 rounded-2xl w-full max-w-xl space-y-4"
+        className="bg-white/40 backdrop-blur-lg shadow-xl border border-white/30 p-8 rounded-2xl w-full max-w-xl space-y-5"
       >
-        <h2 className="text-2xl font-bold text-gray-800 text-center">
+        <h2 className="text-3xl font-bold text-center text-blue-900 mb-4">
           Chỉnh sửa thông tin người dùng
         </h2>
 
-        {message && (
-          <div className="text-center p-2 rounded bg-yellow-100 text-yellow-800 font-medium">
-            {message}
-          </div>
-        )}
+        {/* Tên đăng nhập (readonly) */}
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-gray-700">
+            Tên đăng nhập
+          </label>
+          <input
+            type="text"
+            value={formData.username}
+            disabled
+            className="w-full rounded-lg bg-gray-100 border border-gray-300 p-2 text-gray-500"
+          />
+        </div>
 
-        {/* Trường chỉ đọc */}
-        {[ 
-          { label: 'ID', value: formData.userId },
-          { label: 'Tên đăng nhập', value: formData.username }
-        ].map(({ label, value }) => (
-          <div key={label} className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <input
-              type="text"
-              value={value}
-              disabled
-              className="w-full rounded-lg bg-gray-100 border border-gray-300 p-2 text-gray-500 cursor-not-allowed"
-            />
-          </div>
-        ))}
-
-        {/* Trường chỉnh sửa */}
+        {/* Các trường chỉnh sửa */}
         {[
-          { label: 'Email', name: 'email', type: 'email' },
-          { label: 'Họ và tên', name: 'fullname', type: 'text' },
-          { label: 'Số điện thoại', name: 'phone', type: 'text' },
-          { label: 'Địa chỉ', name: 'address', type: 'text' },
-        ].map(({ label, name, type, placeholder }) => (
+          { label: "Email", name: "email", type: "email" },
+          { label: "Họ và tên", name: "fullname", type: "text" },
+          { label: "Số điện thoại", name: "phone", type: "text" },
+          { label: "Địa chỉ", name: "address", type: "text" },
+        ].map(({ label, name, type }) => (
           <div key={name} className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
+            <label className="block text-sm font-medium text-gray-700">
+              {label}
+            </label>
             <input
               type={type}
               name={name}
               value={formData[name]}
               onChange={handleChange}
-              placeholder={placeholder || ''}
-              className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
         ))}
 
-        {/* Ngày tạo - không được sửa */}
+        {/* Ngày tạo (readonly) */}
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Ngày tạo</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Ngày tạo
+          </label>
           <input
             type="text"
             value={formData.createdAt}
             disabled
-            className="w-full rounded-lg bg-gray-100 border border-gray-300 p-2 text-gray-500 cursor-not-allowed"
+            className="w-full rounded-lg bg-gray-100 border border-gray-300 p-2 text-gray-500"
           />
         </div>
 
         {/* Vai trò */}
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Quyền (role)</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Quyền
+          </label>
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              role === "USER"
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : ""
+            }`}
+            disabled={role === "USER"}
           >
-            {!['USER', 'ADMIN'].includes(formData.role) && (
+            {!["USER", "ADMIN"].includes(formData.role) && (
               <option value={formData.role}>{formData.role}</option>
             )}
             <option value="USER">USER</option>
@@ -161,26 +186,41 @@ export default function UserDetailPage() {
 
         {/* Trạng thái hoạt động */}
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">Trạng thái hoạt động</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Trạng thái hoạt động
+          </label>
           <select
             name="isActive"
-            value={formData.isActive ? 'true' : 'false'}
+            value={formData.isActive ? "true" : "false"}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full rounded-lg border border-gray-300 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              role === "USER"
+                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                : ""
+            }`}
+            disabled={role === "USER"}
           >
             <option value="true">Đang hoạt động</option>
             <option value="false">Ngừng hoạt động</option>
           </select>
         </div>
 
+        {message && (
+          <div className="text-center p-2 rounded text-green-700 font-medium">
+            {message}
+          </div>
+        )}
+
         <button
           type="submit"
           disabled={saving}
           className={`w-full py-2 rounded-lg text-white font-semibold transition ${
-            saving ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+            saving
+              ? "bg-blue-300 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
+          {saving ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
       </form>
     </div>

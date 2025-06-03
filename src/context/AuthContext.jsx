@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import authApi from '../api/authApi';
+import Swal from 'sweetalert2';
 
 const AuthContext = createContext();
 
@@ -23,6 +24,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setToken('');
     setUser(null);
+    Swal.fire({
+      icon: 'success',
+      title: 'Đăng xuất thành công',
+      showConfirmButton: false,
+      timer: 1200,
+    });
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 1200);
   };
 
   return (

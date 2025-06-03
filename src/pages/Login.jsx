@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import Swal from 'sweetalert2';
 
 export default function Login() {
   const { login } = useAuth(); 
@@ -17,10 +18,16 @@ export default function Login() {
 
     try {
       await login({ username, password }); 
-      setInfo(response => response.data.message || 'Đăng nhập thành công');
-      setTimeout(() => {
-        window.location.href = '/'; 
-      }, 1000);
+      Swal.fire({
+        icon: 'success',
+        title: 'Đăng nhập thành công',
+        text: 'Trang chủ...',
+        timer: 1500,
+        showConfirmButton: false,
+        timerProgressBar: true,
+      }).then(() => {
+        window.location.href = '/';
+      });
     } catch (error) {
       const backendMsg = error.response?.data?.message;
       setError(backendMsg || 'Đăng nhập thất bại');
