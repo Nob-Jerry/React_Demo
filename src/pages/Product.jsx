@@ -47,33 +47,33 @@ const Product = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {products.map(product => {
-              const discountedPrice = product.IS_DISCOUNT
-                ? product.PRICE - (product.PRICE * product.DISCOUNT_PERCENT) / 100
-                : product.PRICE;
+              const discountedPrice = product.isDiscount
+                ? product.productPrice - (product.productPrice * product.discountPercent) / 100
+                : product.productPrice;
 
               return (
                 <div
-                  key={product.PRODUCT_ID}
+                  key={product.productId}
                   className="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
                 >
                   <Link
                     className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
-                    to={`/product/${product.PRODUCT_ID}`}
+                    to={`/product/${product.productId}`}
                   >
                     <img
                       className="object-cover w-full"
-                      src={product.IMAGE_URL}
-                      alt={product.NAME}
+                      src={product.imageUrl}
+                      alt={product.productName}
                     />
-                    {product.IS_DISCOUNT && (
+                    {product.isDiscount && (
                       <span className="absolute top-0 left-0 m-2 rounded-full bg-rose-600 px-2 text-center text-sm font-medium text-white">
-                        {product.DISCOUNT_PERCENT}% OFF
+                        {product.discountPercent}% OFF
                       </span>
                     )}
                   </Link>
                   <div className="mt-4 px-5 pb-5">
                     <h5 className="text-xl font-semibold text-slate-800 truncate">
-                      {product.NAME}
+                      {product.productName}
                     </h5>
 
                     {/* Rating */}
@@ -81,7 +81,7 @@ const Product = () => {
                       <div className="flex items-center">
                         {[...Array(5)].map((_, index) => (
                           <svg
-                            key={`star-${product.PRODUCT_ID}-${index}`}
+                            key={`star-${product.productId}-${index}`}
                             aria-hidden="true"
                             className="h-5 w-5 text-yellow-300"
                             fill="currentColor"
@@ -102,9 +102,9 @@ const Product = () => {
                         <span className="text-3xl font-bold text-slate-900">
                           ${discountedPrice.toLocaleString()}
                         </span>
-                        {product.IS_DISCOUNT && (
+                        {product.isDiscount && (
                           <span className="text-sm text-slate-500 line-through ml-2">
-                            ${product.PRICE.toLocaleString()}
+                            ${product.productPrice.toLocaleString()}
                           </span>
                         )}
                       </p>
