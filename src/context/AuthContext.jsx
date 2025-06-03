@@ -1,39 +1,35 @@
-import { createContext, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { createContext, useContext, useState } from 'react';
+import authApi from '../api/authApi';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
   });
 
-  const login = (userData) => {
-    setUser(userData);
+  const [token, setToken] = useState(() => localStorage.getItem('accessToken') || '');
+
+  const login = async (credentials) => {
+    const { accessToken, user } = await authApi.login(credentials);
+
+    setToken(accessToken);
+    setUser(user);
   };
 
   const logout = () => {
-    setUser(null);
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    setToken('');
+    setUser(null);
   };
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
-
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-};
+export const useAuth = () => useContext(AuthContext);

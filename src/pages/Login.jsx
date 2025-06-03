@@ -1,14 +1,12 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
-
+  const { login } = useAuth(); 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false); 
-  const [error, setError] = useState(''); 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [info, setInfo] = useState('');
 
   const handleSubmit = async (e) => {
@@ -16,24 +14,16 @@ export default function Login() {
     setError('');
     setLoading(true);
     setInfo('');
-    try {
-      const res = await axios.post('http://localhost:1903/api/v1/auth/login', {
-        username,
-        password,
-      });
 
-      if (res.data.success) {
-        const token = res.data.accessToken;
-        localStorage.setItem('accessToken', token);
-        login({ username, token }); 
-        setInfo('Đăng nhập thành công');
-      } else {
-        setError(res.data.message || 'Đăng nhập thất bại');
-      }
+    try {
+      await login({ username, password }); 
+      setInfo(response => response.data.message || 'Đăng nhập thành công');
+      setTimeout(() => {
+        window.location.href = '/'; 
+      }, 1000);
     } catch (error) {
       const backendMsg = error.response?.data?.message;
       setError(backendMsg || 'Đăng nhập thất bại');
-      console.error('Login error:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -100,7 +90,7 @@ export default function Login() {
                       </label>
                     </div>
                     <div>
-                      <a href="#0" className="text-sm font-medium text-blue-600 hover:underline">
+                      <a href="/reset-password" className="text-sm font-medium text-blue-600 hover:underline">
                         Forgot Password?
                       </a>
                     </div>

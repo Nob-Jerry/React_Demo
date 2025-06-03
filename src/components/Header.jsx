@@ -18,6 +18,7 @@ import {
   CameraIcon,
   XMarkIcon,
   BookOpenIcon,
+  ShoppingCartIcon
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
@@ -33,7 +34,10 @@ const callsToAction = [
   { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
 
+import { useAuth } from '../context/AuthContext';
+
 export default function Header() {
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -59,7 +63,7 @@ export default function Header() {
         <Bars3Icon aria-hidden="true" className="size-6" />
       </button>
     </div>
-    <PopoverGroup className="hidden lg:flex lg:gap-x-12 ">
+    <PopoverGroup className="hidden lg:flex lg:gap-x-12">
       <Popover className="relative">
         <PopoverButton className="flex items-center gap-x-1 text-[20px] font-semibold text-blue-900 hover:text-[#8be76f] ">
           Danh mục sản phẩm
@@ -104,21 +108,45 @@ export default function Header() {
         </PopoverPanel>
       </Popover>
 
-      <a href="/product" className="text-sm/6 font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
+      <a href="/product" className="font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
         Sản phẩm
       </a>
-      <a href="/cart" className="text-sm/6 font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
+      <a href="/cart" className="font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
         Giỏ hàng
       </a>
-      <a href="/about" className="text-sm/6 font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
+      <a href="/about" className="font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
         Về chúng tôi
       </a>
     </PopoverGroup>
-    <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-      <a href="/login" className="text-sm/6 font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
-        Đăng nhập <span aria-hidden="true">&rarr;</span>
-      </a>
-    </div>
+    {!user ? (
+      <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+        <a href="/login" className="text-sm/6 font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] ">
+          Đăng nhập <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    ):(
+      <div className="hidden lg:flex lg:items-center lg:space-x-6 pl-[100px] text-[20px]">
+        <span className="text-blue-900 font-semibold ">
+          <a href='/detail' className="text-[#3b82f6]">{user.username.toUpperCase()}</a>
+        </span>
+        <button
+          aria-label="Giỏ hàng"
+          className="relative hover:scale-110 transition cursor-pointer"
+          onClick={() => {
+            window.location.href = '/cart';
+          }}
+        >
+          <ShoppingCartIcon className="h-6 w-6 text-blue-900" />
+          <span className="absolute -top-1 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">3</span>
+        </button>
+        <button
+          onClick={() => logout()}
+          className="text-red-600 hover:text-red-800 text-[16px] font-medium transition cursor-pointer"
+        >
+          Đăng xuất
+        </button>
+      </div>
+    )}
   </nav>
   <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
     <div className="fixed inset-0 z-10" />
