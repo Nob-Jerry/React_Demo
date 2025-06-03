@@ -11,6 +11,9 @@ import Category from "../pages/Category";
 import ProductM from "../manage/ProductM";
 import UserDetail from "../pages/userDetail";
 import ResetPassword from "../pages/ResetPassword";
+import ProductDetail from "../pages/ProductDetail";
+import Cart from "../pages/Cart";
+
 function AppRoutes() {
   return (
     <Routes>
@@ -23,10 +26,13 @@ function AppRoutes() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/product" element={<Product />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/product/:id" element={<ProductDetail />} />
 
       {/* cần đăng nhập */}
       <Route element={<RequireAuth />}>
         <Route path="/detail" element={<UserDetail />} />
+        <Route path="/cart" element={<Cart />} />
+
       </Route>
 
       {/* quyền admin */}
