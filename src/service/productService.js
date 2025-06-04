@@ -1,5 +1,4 @@
 import productApi from "../api/productApi";
-
 const getAllProducts = async () =>{
     const response = await productApi.getAll();
     return response.data.data.map(item => ({

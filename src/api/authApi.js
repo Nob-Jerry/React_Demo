@@ -20,6 +20,19 @@ const authApi = {
         console.log(res.data)
         return res.data;
     },
+
+    signup: async (User) => {
+        const payload = {
+            username: User.username,
+            email: User.email,
+            password: User.password,
+            fullname: User.fullname,
+            phone: User.phone,
+            address: User.address
+        };
+        const res = await axiosClient.post('/user/save', payload);
+        return res.data;
+    },
 };
 
 export default authApi;

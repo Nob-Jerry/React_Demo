@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { useCart } from "../context/CartContext";
 const mockCart = [
   {
     id: 1,
@@ -18,6 +18,7 @@ const mockCart = [
 ];
 
 const CartPage = () => {
+  // const { cart } = useCart(); sử dụng cart từ context 
   const [cart, setCart] = useState(mockCart);
   const [selectedIds, setSelectedIds] = useState(cart.map((item) => item.id));
 

@@ -1,9 +1,11 @@
 import { useAuth } from '../context/AuthContext';
+import cartApi from '../api/cartApi'
+import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 
 export default function Login() {
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,13 +13,19 @@ export default function Login() {
   const [info, setInfo] = useState('');
 
   const handleSubmit = async (e) => {
+    const { setCart } = useCart();
+    const cartResponse = await cartApi.getCart();
+    setCart(cartResponse.data);
+
+
     e.preventDefault();
     setError('');
     setLoading(true);
     setInfo('');
 
+
     try {
-      await login({ username, password }); 
+      await login({ username, password });
       Swal.fire({
         icon: 'success',
         title: 'Đăng nhập thành công',
@@ -106,9 +114,8 @@ export default function Login() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`flex w-full items-center justify-center rounded-sm px-9 py-4 text-base font-medium text-white ${
-                        loading ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'
-                      }`}
+                      className={`flex w-full items-center justify-center rounded-sm px-9 py-4 text-base font-medium text-white ${loading ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'
+                        }`}
                     >
                       {loading ? 'Signing in...' : 'Sign in'}
                     </button>
