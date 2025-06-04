@@ -16,9 +16,6 @@ export default function ResetPassword() {
     e.preventDefault();
     setError("");
     setInfo("");
-
-    //useCallBack
-
     const { username, oldPass, newPass, confirmPass } = data;
     setLoading(true);
     try {
