@@ -1,45 +1,52 @@
-import { useAuth } from '../context/AuthContext';
-import cartApi from '../api/cartApi'
-import { useCart } from '../context/CartContext';
-import { useState } from 'react';
-import Swal from 'sweetalert2';
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import cartApi from "../api/cartApi";
+import { useState } from "react";
+import Swal from "sweetalert2";
 
 export default function Login() {
+  const { setCart } = useCart();
   const { login } = useAuth();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
-    setInfo('');
+    setInfo("");
 
     try {
       await login({ username, password });
+      const userData = JSON.parse(localStorage.getItem("user")) || {};
+      const userId = userData.userId;
+      const cartData = await cartApi.getCart(userId);
+      localStorage.setItem("cartId", cartData.data.data.cartId || "");
+      localStorage.setItem(
+        "cart",
+        JSON.stringify(cartData.data.data.cartItems || [])
+      );
+      setCart(cartData.data.data.cartItems || []);
+      console.log("Cart data:", cartData.data.data.cartItems || []);
       Swal.fire({
-        icon: 'success',
-        title: 'Đăng nhập thành công',
-        text: 'Trang chủ...',
+        icon: "success",
+        title: "Đăng nhập thành công",
+        text: "Trang chủ...",
         timer: 1500,
         showConfirmButton: false,
         timerProgressBar: true,
       }).then(() => {
-        window.location.href = '/';
+        window.location.href = "/";
       });
     } catch (error) {
       const backendMsg = error.response?.data?.message;
-      setError(backendMsg || 'Đăng nhập thất bại');
+      setError(backendMsg || "Đăng nhập thất bại");
     } finally {
       setLoading(false);
     }
-    const { setCart } = useCart();
-    const cartResponse = await cartApi.getCart();
-    setCart(cartResponse.data);
   };
 
   return (
@@ -57,7 +64,10 @@ export default function Login() {
                 </p>
                 <form onSubmit={handleSubmit}>
                   <div className="mb-8">
-                    <label htmlFor="email" className="mb-3 block text-sm text-gray-700 dark:text-white">
+                    <label
+                      htmlFor="email"
+                      className="mb-3 block text-sm text-gray-700 dark:text-white"
+                    >
                       Your Email
                     </label>
                     <input
@@ -71,7 +81,10 @@ export default function Login() {
                     />
                   </div>
                   <div className="mb-8">
-                    <label htmlFor="password" className="mb-3 block text-sm text-gray-700 dark:text-white">
+                    <label
+                      htmlFor="password"
+                      className="mb-3 block text-sm text-gray-700 dark:text-white"
+                    >
                       Your Password
                     </label>
                     <input
@@ -86,10 +99,14 @@ export default function Login() {
                   </div>
 
                   {error && (
-                    <p className="mb-4 text-center text-sm text-red-600">{error}</p>
+                    <p className="mb-4 text-center text-sm text-red-600">
+                      {error}
+                    </p>
                   )}
                   {info && (
-                    <p className="mb-4 text-center text-sm text-green-400">{info}</p>
+                    <p className="mb-4 text-center text-sm text-green-400">
+                      {info}
+                    </p>
                   )}
 
                   <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
@@ -103,7 +120,10 @@ export default function Login() {
                       </label>
                     </div>
                     <div>
-                      <a href="/reset-password" className="text-sm font-medium text-blue-600 hover:underline">
+                      <a
+                        href="/reset-password"
+                        className="text-sm font-medium text-blue-600 hover:underline"
+                      >
                         Forgot Password?
                       </a>
                     </div>
@@ -112,10 +132,13 @@ export default function Login() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`flex w-full items-center justify-center rounded-sm px-9 py-4 text-base font-medium text-white ${loading ? 'bg-blue-300' : 'bg-blue-500 hover:bg-blue-600'
-                        }`}
+                      className={`flex w-full items-center justify-center rounded-sm px-9 py-4 text-base font-medium text-white ${
+                        loading
+                          ? "bg-blue-300"
+                          : "bg-blue-500 hover:bg-blue-600"
+                      }`}
                     >
-                      {loading ? 'Signing in...' : 'Sign in'}
+                      {loading ? "Signing in..." : "Sign in"}
                     </button>
                   </div>
                   <button className="mb-6 flex w-full items-center justify-center rounded-sm bg-white px-6 py-3 text-base text-gray-700 shadow hover:bg-blue-50">
@@ -130,7 +153,7 @@ export default function Login() {
                   </button>
                 </form>
                 <p className="text-center text-base font-medium text-gray-600">
-                  Don’t you have an account?{' '}
+                  Don’t you have an account?{" "}
                   <a href="/signup" className="text-blue-600 hover:underline">
                     Sign up
                   </a>

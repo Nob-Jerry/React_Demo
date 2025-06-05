@@ -7,6 +7,7 @@ const authApi = {
         const accessToken = res.data.accessToken;
         const payload = parseJwt(accessToken);
         const user = {
+            userId: payload.id,
             username: payload.sub,
             role: payload.scope
         }
