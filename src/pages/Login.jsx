@@ -13,16 +13,11 @@ export default function Login() {
   const [info, setInfo] = useState('');
 
   const handleSubmit = async (e) => {
-    const { setCart } = useCart();
-    const cartResponse = await cartApi.getCart();
-    setCart(cartResponse.data);
-
 
     e.preventDefault();
     setError('');
     setLoading(true);
     setInfo('');
-
 
     try {
       await login({ username, password });
@@ -42,6 +37,9 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+    const { setCart } = useCart();
+    const cartResponse = await cartApi.getCart();
+    setCart(cartResponse.data);
   };
 
   return (
