@@ -1,46 +1,136 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import cartApi from "../api/cartApi";
+import Swal from "sweetalert2";
 
-const CartPage = ({ userId }) => {
+const CartPage = () => {
   const { cart, setCart } = useCart();
-  const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const userData = JSON.parse(localStorage.getItem("user")) || {};
+  const userId = userData.userId;
+  const cartId = localStorage.getItem("cartId") || "";
+
 
   useEffect(() => {
-    const fetchCart = async () => {
-      setLoading(true);
-      try {
-        const res = await cartApi.getCart(userId);
-        setCart(res.data.data?.cartItems || []);
-      } catch (error) {
-        console.error("Failed to fetch cart", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(false);
+  }, []);
+  console.log(cart);
 
-    if (userId) fetchCart();
-  }, [userId, setCart]);
+  const handleQuantityChange = async (id, delta) => {
+    const item = cart.find((item) => item.cartItemId === id);
+    console.log("Item found:", item);
+    if (!item) return;
+    const newQuantity = item.quantity + delta;
 
-  const handleQuantityChange = (id, delta) => {
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.cartItemId === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
+    if (newQuantity <= 0) {
+      await handleDelete(id);
+      return;
+    }
+
+    try {
+      await cartApi.updateCartItem({
+        cartItemId: item.cartItemId,
+        cartId: cartId,
+        productId: item.productId,
+        quantity: newQuantity,
+      });
+      setCart((prevCart) =>
+        prevCart.map((item) =>
+          item.cartItemId === id ? { ...item, quantity: newQuantity } : item
+        )
+      );
+      Swal.fire({
+        icon: "success",
+        title: "Cập nhật số lượng thành công",
+        showConfirmButton: false,
+        timer: 1000,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Cập nhật số lượng thất bại",
+        text: error?.message || "",
+      });
+    }
   };
 
-  const handleDelete = (id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== id));
-    setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+  const handleDelete = async (id) => {
+    const item = cart.find((item) => item.cartItemId === id);
+    if (!item) return;
+    const confirm = await Swal.fire({
+      title: "Bạn có chắc muốn xóa sản phẩm này?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirm.isConfirmed) return;
+    try {
+      await cartApi.deleteListCartItem(userId, [item.productId]);
+      Swal.fire({
+        icon: "success",
+        title: "Xóa sản phẩm thành công",
+        showConfirmButton: false,
+        timer: 1000,
+      });
+      setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== id));
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Xóa sản phẩm thất bại",
+        text: error?.message || "",
+      });
+      return;
+    }
   };
 
-  const handleDeleteSelected = () => {
-    setCart((prevCart) => prevCart.filter((item) => !selectedIds.includes(item.cartItemId)));
-    setSelectedIds([]);
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Vui lòng chọn sản phẩm để xóa",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+      return;
+    }
+    const confirm = await Swal.fire({
+      title: "Bạn có chắc muốn xóa các sản phẩm đã chọn?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirm.isConfirmed) return;
+    const productIdList = selectedIds
+      .map((id) => {
+        const item = cart.find((item) => item.cartItemId === id);
+        return item ? item.productId : null;
+      })
+      .filter(Boolean);
+
+    try {
+      await cartApi.deleteListCartItem(userId, productIdList);
+      Swal.fire({
+        icon: "success",
+        title: "Xóa sản phẩm thành công",
+        showConfirmButton: false,
+        timer: 1000,
+      });
+      setCart((prevCart) =>
+        prevCart.filter((item) => !selectedIds.includes(item.cartItemId))
+      );
+      setSelectedIds([]);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Xóa sản phẩm thất bại",
+        text: error?.message || "",
+      });
+      return;
+    }
   };
 
   const total = cart?.reduce(
