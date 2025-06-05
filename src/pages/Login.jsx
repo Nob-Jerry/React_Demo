@@ -5,7 +5,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 
 export default function Login() {
-  const { setCart }  = useCart();
+  const { setCart } = useCart();
   const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,17 +16,20 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true); 
+    setLoading(true);
     setInfo("");
-    
+
     try {
       await login({ username, password });
       const userData = JSON.parse(localStorage.getItem("user")) || {};
       const userId = userData.userId;
       const cartData = await cartApi.getCart(userId);
       localStorage.setItem("cartId", cartData.data.data.cartId || "");
-      localStorage.setItem("cart", JSON.stringify(cartData.data.data.cartItems || []));
-      setCart(cartData.data.data.cartItems || []);        
+      localStorage.setItem(
+        "cart",
+        JSON.stringify(cartData.data.data.cartItems || [])
+      );
+      setCart(cartData.data.data.cartItems || []);
       console.log("Cart data:", cartData.data.data.cartItems || []);
       Swal.fire({
         icon: "success",
