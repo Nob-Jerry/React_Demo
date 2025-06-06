@@ -23,24 +23,30 @@ export default function Login() {
       await login({ username, password });
       const userData = JSON.parse(localStorage.getItem("user")) || {};
       const userId = userData.userId;
-      const cartData = await cartApi.getCart(userId);
-      localStorage.setItem("cartId", cartData.data.data.cartId || "");
-      localStorage.setItem(
-        "cart",
-        JSON.stringify(cartData.data.data.cartItems || [])
-      );
-      setCart(cartData.data.data.cartItems || []);
-      console.log("Cart data:", cartData.data.data.cartItems || []);
-      Swal.fire({
-        icon: "success",
-        title: "Đăng nhập thành công",
-        text: "Trang chủ...",
-        timer: 1500,
-        showConfirmButton: false,
-        timerProgressBar: true,
-      }).then(() => {
-        window.location.href = "/";
-      });
+
+      try {
+        const cartData = await cartApi.getCart(userId);
+        console.log("Cart data:", cartData);
+        localStorage.setItem("cartId", cartData.data.data.cartId || "");
+        localStorage.setItem(
+          "cart",
+          JSON.stringify(cartData.data.data.cartItems || [])
+        );
+        setCart(cartData.data.data.cartItems || []);
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      } finally {
+        Swal.fire({
+          icon: "success",
+          title: "Đăng nhập thành công",
+          text: "Trang chủ...",
+          timer: 1500,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        }).then(() => {
+          window.location.href = "/";
+        });
+      }
     } catch (error) {
       const backendMsg = error.response?.data?.message;
       setError(backendMsg || "Đăng nhập thất bại");
@@ -56,19 +62,19 @@ export default function Login() {
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
               <div className="mx-auto max-w-[500px] rounded bg-blue-100 px-6 py-10 dark:bg-dark sm:p-[60px]">
-                <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
+                <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-[#3935ad] sm:text-3xl">
                   Sign in to your account
                 </h3>
-                <p className="mb-11 text-center text-base font-medium text-slate-600 dark:text-slate-400">
+                <p className="mb-11 text-center text-base font-medium text-slate-600 dark:text-[#5753c0]">
                   Login to your account for a faster checkout.
                 </p>
                 <form onSubmit={handleSubmit}>
                   <div className="mb-8">
                     <label
                       htmlFor="email"
-                      className="mb-3 block text-sm text-gray-700 dark:text-white"
+                      className="mb-3 block text-sm text-gray-700 dark:text-[#3935ad]"
                     >
-                      Your Email
+                      User Name
                     </label>
                     <input
                       type="text"
@@ -83,7 +89,7 @@ export default function Login() {
                   <div className="mb-8">
                     <label
                       htmlFor="password"
-                      className="mb-3 block text-sm text-gray-700 dark:text-white"
+                      className="mb-3 block text-sm text-gray-700 dark:text-[#3935ad]"
                     >
                       Your Password
                     </label>
@@ -111,7 +117,7 @@ export default function Login() {
 
                   <div className="mb-8 flex flex-col justify-between sm:flex-row sm:items-center">
                     <div className="mb-4 sm:mb-0">
-                      <label className="flex items-center text-sm font-medium text-gray-700 dark:text-white">
+                      <label className="flex items-center text-sm font-medium text-gray-700 dark:text-[#3935ad]">
                         <input
                           type="checkbox"
                           className="mr-2 h-5 w-5 rounded border border-gray-300 bg-white text-blue-600 focus:ring-0"

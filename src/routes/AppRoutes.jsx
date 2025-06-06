@@ -8,7 +8,9 @@ import Login from "../pages/Login";
 import Signup from "../pages/Signup";
 import Product from "../pages/Product";
 import Category from "../pages/Category";
+import UserM from "../manage/UserM";
 import ProductM from "../manage/ProductM";
+import CategoryM from "../manage/CategoryM";
 import UserDetail from "../pages/userDetail";
 import ResetPassword from "../pages/ResetPassword";
 import ProductDetail from "../pages/ProductDetail";
@@ -28,6 +30,7 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/product/:id" element={<ProductDetail />} />
 
+
       {/* cần đăng nhập */}
       <Route element={<RequireAuth />}>
         <Route path="/detail" element={<UserDetail />} />
@@ -38,7 +41,9 @@ function AppRoutes() {
       {/* quyền admin */}
       <Route element={<RequireAuth allowedRoles={["ADMIN"]} />}>
         {/* <Route path="/admin" element={<AdminPanel />} /> */}
+        <Route path="/management/category" element={<CategoryM />} />
         <Route path="/management/product" element={<ProductM />} />
+        <Route path="/management/user" element={<UserM />} />
         <Route path="/category/:id" element={<Category />} />
       </Route>
     </Routes>

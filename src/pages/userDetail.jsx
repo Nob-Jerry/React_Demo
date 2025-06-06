@@ -26,6 +26,7 @@ export default function UserDetailPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,7 +47,7 @@ export default function UserDetailPage() {
         });
       } catch (err) {
         console.error("Lỗi khi tải người dùng:", err);
-        setMessage("Không thể tải dữ liệu người dùng.");
+        setError("Không thể tải dữ liệu người dùng.");
       } finally {
         setLoading(false);
       }
@@ -65,6 +66,17 @@ export default function UserDetailPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^0\d{9}$/;
+
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      setError("Email không hợp lệ hoặc đang để trống.");
+      return;
+    }
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      setError("Số điện thoại phải bắt đầu bằng 0 và đủ 10 số hoặc để trống.");
+      return;
+    }
     const result = await Swal.fire({
       title: "Xác nhận lưu thay đổi?",
       text: "Bạn có chắc muốn lưu các thay đổi này?",
@@ -86,14 +98,12 @@ export default function UserDetailPage() {
         showConfirmButton: false,
         timer: 1200,
       });
-      // window.location.reload();
     } catch (err) {
-      console.error("Lỗi khi lưu:", err);
-      setMessage("Lưu thất bại!");
+      setError("Lưu thất bại!");
       Swal.fire({
         icon: "error",
         title: "Lưu thất bại!",
-        text: "Có lỗi xảy ra khi lưu.",
+        text: err?.response?.data?.message || "Có lỗi xảy ra khi lưu.",
       });
     } finally {
       setSaving(false);
@@ -208,6 +218,11 @@ export default function UserDetailPage() {
         {message && (
           <div className="text-center p-2 rounded text-green-700 font-medium">
             {message}
+          </div>
+        )}
+        {error && (
+          <div className="text-center p-2 rounded text-red-600 font-medium">
+            {error}
           </div>
         )}
 
