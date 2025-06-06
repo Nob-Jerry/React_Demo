@@ -11,7 +11,6 @@ const CartPage = () => {
   const userId = userData.userId;
   const cartId = localStorage.getItem("cartId") || "";
 
-
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -68,20 +67,11 @@ const CartPage = () => {
     if (!confirm.isConfirmed) return;
     try {
       await cartApi.deleteListCartItem(userId, [item.productId]);
-      Swal.fire({
-        icon: "success",
-        title: "Xóa sản phẩm thành công",
-        showConfirmButton: false,
-        timer: 1000,
-      });
+      console.log("Deleted item:", item);
       setCart((prevCart) => prevCart.filter((item) => item.cartItemId !== id));
       setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Xóa sản phẩm thất bại",
-        text: error?.message || "",
-      });
+      console.error("Error deleting item:", error);
       return;
     }
   };
@@ -145,7 +135,7 @@ const CartPage = () => {
 
         {loading ? (
           <p className="text-center text-gray-500">Đang tải giỏ hàng...</p>
-        ) : cart?.length === 0 ? (
+        ) : !cart || cart.length === 0 ? (
           <p className="text-center text-gray-500">Giỏ hàng trống.</p>
         ) : (
           <>

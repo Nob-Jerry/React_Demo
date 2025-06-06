@@ -31,10 +31,10 @@ export default function Signup() {
       setError("Mật khẩu phải trên 6 ký tự, gồm ít nhất 1 chữ và 1 số.");
       return;
     }
-    if (!phoneRegex.test(User.phone)) {
-      setError("Số điện thoại phải bắt đầu bằng 0 và đủ 10 số.");
-      return;
-    }
+    // if (!phoneRegex.test(User.phone)) {
+    //   setError("Số điện thoại phải bắt đầu bằng 0 và đủ 10 số.");
+    //   return;
+    // }
 
     setLoading(true);
     try {
@@ -76,16 +76,16 @@ export default function Signup() {
           <div className="-mx-4 flex flex-wrap">
             <div className="w-full px-4">
               <div className="mx-auto max-w-[700px] rounded bg-blue-100 px-6 py-10 dark:bg-dark sm:p-[60px] shadow-lg">
-                <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-white sm:text-3xl">
+                <h3 className="mb-3 text-center text-2xl font-bold text-black dark:text-[#3935ad] sm:text-3xl">
                   Tạo tài khoản
                 </h3>
-                <p className="mb-6 text-center text-base font-medium text-slate-600 dark:text-slate-400">
+                <p className="mb-6 text-center text-base font-medium text-slate-600 dark:text-[#5961d5]">
                   Tham gia để trải nghiệm tốt hơn!
                 </p>
 
                 <form onSubmit={handleSubmit}>
-                  <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Họ tên</label>
+                  {/* <div className="mb-4">
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Họ tên</label>
                     <input
                       type="text"
                       value={User.fullname}
@@ -93,10 +93,10 @@ export default function Signup() {
                       placeholder="Nhập họ tên"
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
-                  </div>
+                  </div> */}
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Tên đăng nhập</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Tên đăng nhập</label>
                     <input
                       type="text"
                       value={User.username}
@@ -107,7 +107,7 @@ export default function Signup() {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Email</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Email</label>
                     <input
                       type="email"
                       value={User.email}
@@ -118,7 +118,7 @@ export default function Signup() {
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Mật khẩu</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Mật khẩu</label>
                     <input
                       type="password"
                       value={User.password}
@@ -127,9 +127,10 @@ export default function Signup() {
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
                   </div>
+                  
 
-                  <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Số điện thoại</label>
+                  {/* <div className="mb-4">
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Số điện thoại</label>
                     <input
                       type="number"
                       value={User.phone}
@@ -137,10 +138,10 @@ export default function Signup() {
                       placeholder="SĐT"
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
-                  </div>
+                  </div> */}
 
-                  <div className="mb-6">
-                    <label className="block text-sm text-gray-700 dark:text-white mb-1">Địa chỉ</label>
+                  {/* <div className="mb-6">
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Địa chỉ</label>
                     <input
                       type="text"
                       value={User.address}
@@ -148,7 +149,7 @@ export default function Signup() {
                       placeholder="Địa chỉ"
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
-                  </div>
+                  </div> */}
                   <div className="flex items-center justify-center mb-4">
                     {error && <p className="mb-4 text-red-500 text-sm">{error}</p>}
                   </div>

@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('cartId');
+    localStorage.removeItem('cart');
     setToken('');
     setUser(null);
     Swal.fire({
