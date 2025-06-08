@@ -1,25 +1,58 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate  } from "react-router-dom";
-import { getAllProducts }  from "../service/productService";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useProduct } from "../context/ProductContext";
+import { useCart } from "../context/CartContext";
+import { updateCartItem } from "../service/cartService";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Product = () => {
-  const [products, setProducts] = useState([]);
+  const { refreshCart, cartId, cart } = useCart();
+  const { products } = useProduct();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setLoading(true);
-    getAllProducts()
-      .then(setProducts)
-      .catch((err) =>
-        setError(err?.response?.data?.message || "Lỗi khi tải sản phẩm")
-      )
-      .finally(() => setLoading(false));
-  }, []);
-  
+    if (products && products.length > 0) {
+      setLoading(false);
+      setError("");
+    }
+  }, [products]);
+
+  const handleAddToCart = async (product) => {
+    try {
+      const existingItem = cart.find(
+        (item) => item.productId === product.productId
+      );
+
+      const payload = {
+        cartItemId: existingItem ? existingItem.cartItemId : 0,
+        cartId: cartId,
+        productId: product.productId,
+        quantity: existingItem ? existingItem.quantity + 1 : 1,
+      };
+      await updateCartItem(payload);
+      toast.success("Đã thêm vào giỏ hàng!");
+      await refreshCart();
+    } catch (err) {
+      console.error(err);
+      toast.error("Thêm vào giỏ hàng thất bại!");
+    }
+  };
   const handleProductClick = (productId) => {
-    if (!productId) return; 
+    if (!productId) return;
     navigate(`/product/${productId}`);
+  };
+
+  if (!products || products.length === 0) {
+    return (
+      <div className="flex w-full h-screen items-center justify-center bg-[#e0f2fe]">
+        <div className="text-center text-gray-500 text-lg">
+          Không có sản phẩm nào
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -60,7 +93,9 @@ const Product = () => {
                   key={product.productId}
                   className="relative flex w-full max-w-xs flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-md"
                   onClick={() => handleProductClick(product.productId)}
-                  style={{ cursor: product.productId ? "pointer" : "not-allowed" }}
+                  style={{
+                    cursor: product.productId ? "pointer" : "not-allowed",
+                  }}
                 >
                   <Link
                     className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl"
@@ -68,7 +103,11 @@ const Product = () => {
                   >
                     <img
                       className="object-cover w-full"
-                      src={product.productImage ? `/img/${product.productImage}` : "default-image.jpg"}
+                      src={
+                        product.productImage
+                          ? `/img/${product.productImage}`
+                          : "default-image.jpg"
+                      }
                       alt={product.productName}
                     />
                     {product.isDiscount && (
@@ -106,7 +145,14 @@ const Product = () => {
                     <div>
                       <p>
                         <span className="text-3xl font-bold text-slate-900">
-                          ${discountedPrice.toLocaleString()}
+                          <span className="text-3xl font-bold text-slate-900">
+                            $
+                            {(product.isDiscount
+                              ? product.productPrice *
+                                (1 - product.discountPercent / 100)
+                              : product.productPrice
+                            ).toLocaleString()}
+                          </span>
                         </span>
                         {product.isDiscount && (
                           <span className="text-sm text-slate-500 line-through ml-2">
@@ -116,10 +162,12 @@ const Product = () => {
                       </p>
                     </div>
 
-                    {/* Thêm vào giỏ */}
-                    <Link
-                      to="/"
-                      onClick={(e) => e.stopPropagation()} 
+                    {/* Nút thêm vào giỏ */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
                       className="mt-4 flex items-center justify-center rounded-md bg-sky-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-sky-700 transition"
                     >
                       <svg
@@ -137,7 +185,7 @@ const Product = () => {
                         />
                       </svg>
                       Thêm vào giỏ
-                    </Link>
+                    </button>
                   </div>
                 </div>
               );
@@ -145,6 +193,8 @@ const Product = () => {
           </div>
         )}
       </div>
+
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

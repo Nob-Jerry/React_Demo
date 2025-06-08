@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { getProductById } from "../service/productService";
-import { useParams } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { getCategoryById } from "../service/categoryService";
+import { updateCartItem } from "../service/cartService";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProductDetail = () => {
   const [product, setProduct] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+
   const { id } = useParams();
+  const { cart, cartId, refreshCart } = useCart();
+
   useEffect(() => {
     if (!id) return;
     setLoading(true);
@@ -18,6 +28,51 @@ const ProductDetail = () => {
       )
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    const fetchSuggested = async () => {
+      if (product?.categoryId) {
+        try {
+          const categoryData = await getCategoryById(product.categoryId);
+          setSuggestedProducts(
+            categoryData.products?.filter(
+              (p) => p.productId !== product.productId
+            ) || []
+          );
+        } catch (err) {
+          console.error("Lỗi khi lấy sản phẩm gợi ý:", err);
+        }
+      }
+    };
+    fetchSuggested();
+  }, [product]);
+
+  const handleAddToCart = async (product) => {
+    try {
+      const existingItem = cart.find(
+        (item) => item.productId === product.productId
+      );
+
+      const payload = {
+        cartItemId: existingItem ? existingItem.cartItemId : 0,
+        cartId,
+        productId: product.productId,
+        quantity: existingItem ? existingItem.quantity + 1 : 1,
+      };
+
+      await updateCartItem(payload);
+      toast.success("Đã thêm vào giỏ hàng!");
+      await refreshCart();
+    } catch (err) {
+      console.error(err);
+      toast.error("Thêm sản phẩm thất bại!");
+    }
+  };
+
+  const handleProductClick = (productId) => {
+    if (!productId) return;
+    navigate(`/product/${productId}`);
+  };
 
   const formatPrice = (price) =>
     price?.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
@@ -43,16 +98,18 @@ const ProductDetail = () => {
   return (
     <div className="bg-gradient-to-br from-blue-50 to-sky-100 min-h-screen p-6">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-white/30">
-        {/* Ảnh sản phẩm */}
         <div className="flex justify-center items-start">
           <img
-            src={product.productImage ? `/img/${product.productImage}` : "default-image.jpg"}
+            src={
+              product.productImage
+                ? `/img/${product.productImage}`
+                : "default-image.jpg"
+            }
             alt={product.productName}
             className="rounded-xl object-cover shadow-md max-h-[400px]"
           />
         </div>
 
-        {/* Thông tin sản phẩm */}
         <div className="space-y-4">
           <h1 className="text-3xl font-bold text-gray-800">
             {product.productName}
@@ -90,47 +147,62 @@ const ProductDetail = () => {
             </li>
           </ul>
 
-          <button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition">
+          <button
+            className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl font-semibold transition"
+            onClick={() => handleAddToCart(product)}
+          >
             Thêm vào giỏ hàng
           </button>
         </div>
       </div>
 
-      {/* Gợi ý sản phẩm */}
       <div className="max-w-6xl mx-auto mt-10">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">
           Gợi ý sản phẩm tương tự
         </h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            { name: "Samsung S24 Ultra", img: "s24.jpg", price: 24990000 },
-            { name: "Xiaomi 14 Pro", img: "mi14.jpg", price: 18990000 },
-            { name: "iPhone 14 Pro Max", img: "iphone14.jpg", price: 25990000 },
-            { name: "Oppo Find X7", img: "oppo.jpg", price: 17990000 },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="bg-white/60 backdrop-blur rounded-xl p-4 shadow hover:shadow-lg transition"
-            >
-              <img
-                src={item.img}
-                alt={item.name}
-                className="rounded-lg w-full h-40 object-cover mb-3"
-              />
-              <h3 className="font-semibold text-gray-800">{item.name}</h3>
-              <p className="text-blue-600 font-bold text-sm">
-                {item.price.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
-              </p>
-              <button className="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded text-sm">
-                Xem chi tiết
-              </button>
-            </div>
-          ))}
-        </div>
+
+        {suggestedProducts.length === 0 ? (
+          <p className="text-gray-500">Không có sản phẩm tương tự</p>
+        ) : (
+          <div className="grid md:grid-cols-4 gap-6">
+            {suggestedProducts
+              .filter((p) => p.productId !== product.productId)
+              .map((item) => (
+                <div
+                  key={item.productId}
+                  onClick={() => handleProductClick(item.productId)}
+                  className="bg-white/60 backdrop-blur rounded-xl p-4 shadow hover:shadow-lg transition"
+                >
+                  <img
+                    src={
+                      item.productImage
+                        ? `/img/${item.productImage}`
+                        : "default-image.jpg"
+                    }
+                    alt={item.productName}
+                    className="rounded-lg w-full h-40 object-cover mb-3"
+                  />
+                  <h3 className="font-semibold text-gray-800">
+                    {item.productName}
+                  </h3>
+                  <p className="text-blue-600 font-bold text-sm">
+                    {formatPrice(item.productPrice)}
+                  </p>
+                  <button
+                    className="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddToCart(item);
+                    }}
+                  >
+                    Thêm vào giỏ
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
+      <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
 };

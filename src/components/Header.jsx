@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getAllCategories } from "../service/categoryService";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import { useCategory } from "../context/CategoryContext";
 import {
   Dialog,
   DialogPanel,
@@ -26,50 +30,41 @@ import {
   PlayCircleIcon,
 } from "@heroicons/react/20/solid";
 
-const products = [
-  {
-    name: "FLOWER",
-    description: "Hoa tươi, hoa bó, hoa chậu",
-    href: "/category/flower",
-    icon: GiftIcon,
-  },
-  {
-    name: "FASHION",
-    description: "Thời trang, quần áo, phụ kiện",
-    href: "/category/fashion",
-    icon: CameraIcon,
-  },
-  {
-    name: "WATCH",
-    description: "Đồng hồ nam, nữ, cặp đôi",
-    href: "/category/watch",
-    icon: LifebuoyIcon,
-  },
-  {
-    name: "ELECTRONICS",
-    description: "Thiết bị điện tử, công nghệ",
-    href: "/category/electronics",
-    icon: CpuChipIcon,
-  },
-  {
-    name: "BOOK",
-    description: "Sách, truyện, kỹ năng sống",
-    href: "/category/book",
-    icon: BookOpenIcon,
-  },
-];
-const callsToAction = [
-  { name: "Watch demo", href: "#", icon: PlayCircleIcon },
-  { name: "Contact sales", href: "#", icon: PhoneIcon },
-];
-
-import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext"; 
-
 export default function Header() {
+  const { setCategories } = useCategory();
+  const [category, setCategory] = useState([]);
   const { user, logout } = useAuth();
-  const { cartCount } = useCart(); 
+  const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    getAllCategories()
+      .then((data) => {
+        setCategory(data);
+        setCategories(data)
+        localStorage.setItem("categories", JSON.stringify(data))
+      })
+      .catch((error) => {
+        console.error("Error fetching categories:", error);
+      });
+  }, []);
+
+  const iconMap = {
+    1: CameraIcon,
+    2: CpuChipIcon,
+    3: GiftIcon,
+    4: LifebuoyIcon,
+    5: BookOpenIcon,
+    6: PlayCircleIcon,
+    7: PhoneIcon,
+  };
+
+  const adminMenu = [
+    { label: "Quản lý tài khoản", href: "/management/user" },
+    { label: "Quản lý sản phẩm", href: "/management/product" },
+    { label: "Quản lý danh mục", href: "/management/category" },
+    { label: "Quản lý đặt hàng", href: "/admin/orders" },
+  ];
 
   return (
     <header className="bg-blue-50">
@@ -94,62 +89,81 @@ export default function Header() {
           </button>
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
-          <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-[20px] font-semibold text-blue-900 hover:text-[#8be76f] ">
-              Danh mục sản phẩm
-              <ChevronDownIcon
-                aria-hidden="true"
-                className="size-5 flex-none text-blue-400"
-              />
-            </PopoverButton>
-
-            <PopoverPanel
-              transition
-              className="absolute top-full -left-8 z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-blue-50 shadow-lg ring-1 ring-blue-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-            >
-              <div className="p-4">
-                {products.map((item) => (
-                  <div
-                    key={item.name}
-                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-blue-100"
-                  >
-                    <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-blue-100 group-hover:bg-blue-200">
-                      <item.icon
-                        aria-hidden="true"
-                        className="size-6 text-blue-600 group-hover:text-[#8be76f]"
-                      />
-                    </div>
-                    <div className="flex-auto">
-                      <a
-                        href={item.href}
-                        className="block font-semibold text-blue-900"
+          {/* Nếu là admin thì hiển thị dropdown quản lý */}
+          {user && user.role === "ADMIN" ? (
+            <Popover className="relative">
+              <PopoverButton className="flex items-center gap-x-1 outline-none focus:outline-none text-[20px] font-semibold text-blue-900 hover:text-[#8be76f] ">
+                Quản lý
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-5 flex-none text-blue-400"
+                />
+              </PopoverButton>
+              <PopoverPanel
+                transition
+                className="absolute top-full -left-8 z-10 mt-3 w-64 overflow-hidden rounded-3xl bg-blue-50 shadow-lg ring-1 ring-blue-900/5"
+              >
+                <div className="p-4">
+                  {adminMenu.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="block rounded-lg p-4 font-semibold text-blue-900 hover:bg-blue-100"
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              </PopoverPanel>
+            </Popover>
+          ) : (
+            <Popover className="relative">
+              <PopoverButton className="flex items-center outline-none focus:outline-none gap-x-1 text-[20px] font-semibold text-blue-900 hover:text-[#8be76f] ">
+                Danh mục sản phẩm
+                <ChevronDownIcon
+                  aria-hidden="true"
+                  className="size-5 flex-none text-blue-400"
+                />
+              </PopoverButton>
+              <PopoverPanel
+                transition
+                className="absolute top-full -left-8 z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-blue-50 shadow-lg ring-1 ring-blue-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+              >
+                <div className="p-4 max-h-110 overflow-y-auto">
+                  {category.map((item, idx) => {
+                    const IconComponent = iconMap[item.categoryId];
+                    return (
+                      <div
+                        key={item.categoryId || idx}
+                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-blue-100"
                       >
-                        {item.name}
-                        <span className="absolute inset-0" />
-                      </a>
-                      <p className="mt-1 text-blue-700">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 divide-x divide-blue-900/5 bg-blue-100">
-                {callsToAction.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-blue-900 hover:bg-blue-200"
-                  >
-                    <item.icon
-                      aria-hidden="true"
-                      className="size-5 flex-none text-blue-400"
-                    />
-                    {item.name}
-                  </a>
-                ))}
-              </div>
-            </PopoverPanel>
-          </Popover>
-
+                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-blue-100 group-hover:bg-blue-200">
+                          {IconComponent ? (
+                            <IconComponent
+                              aria-hidden="true"
+                              className="size-6 text-blue-600 group-hover:text-[#8be76f]"
+                            />
+                          ) : null}
+                        </div>
+                        <div className="flex-auto">
+                          <a
+                            href={`/category/${item.categoryId}`}
+                            className="block font-semibold text-blue-900"
+                          >
+                            {item.categoryName}
+                            <span className="absolute inset-0" />
+                          </a>
+                          <p className="mt-1 text-blue-700">
+                            {item.categoryDescription}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverPanel>
+            </Popover>
+          )}
           <a
             href="/product"
             className="font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] "
@@ -232,27 +246,57 @@ export default function Header() {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-blue-900/10">
               <div className="space-y-2 py-6">
-                <Disclosure as="div" className="-mx-3">
-                  <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-blue-900 hover:bg-blue-100">
-                    Danh mục sản phẩm
-                    <ChevronDownIcon
-                      aria-hidden="true"
-                      className="size-5 flex-none group-data-open:rotate-180"
-                    />
-                  </DisclosureButton>
-                  <DisclosurePanel className="mt-2 space-y-2">
-                    {[...products, ...callsToAction].map((item) => (
-                      <DisclosureButton
-                        key={item.name}
-                        as="a"
-                        href={item.href}
-                        className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-blue-900 hover:bg-blue-100"
-                      >
-                        {item.name}
-                      </DisclosureButton>
-                    ))}
-                  </DisclosurePanel>
-                </Disclosure>
+                {/* Nếu là admin thì hiển thị menu quản lý */}
+                {user && user.role === "ADMIN" ? (
+                  <Disclosure as="div" className="-mx-3">
+                    <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-blue-900 hover:bg-blue-100">
+                      Quản lý
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="size-5 flex-none group-data-open:rotate-180"
+                      />
+                    </DisclosureButton>
+                    <DisclosurePanel className="mt-2 space-y-2">
+                      {adminMenu.map((item) => (
+                        <a
+                          key={item.href}
+                          href={item.href}
+                          className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-blue-900 hover:bg-blue-100"
+                        >
+                          {item.label}
+                        </a>
+                      ))}
+                    </DisclosurePanel>
+                  </Disclosure>
+                ) : (
+                  <Disclosure as="div" className="-mx-3">
+                    <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-blue-900 hover:bg-blue-100">
+                      Danh mục sản phẩm
+                      <ChevronDownIcon
+                        aria-hidden="true"
+                        className="size-5 flex-none group-data-open:rotate-180"
+                      />
+                    </DisclosureButton>
+                    <DisclosurePanel className="mt-2 space-y-2 max-h-72 overflow-y-auto">
+                      {category.map((item, idx) => {
+                        const IconComponent = iconMap[item.categoryId];
+                        return (
+                          <DisclosureButton
+                            key={item.categoryId || idx}
+                            as="a"
+                            href={item.href}
+                            className="flex items-center gap-x-3 rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-blue-900 hover:bg-blue-100"
+                          >
+                            {IconComponent && (
+                              <IconComponent className="size-5 text-blue-600" />
+                            )}
+                            {item.categoryName}
+                          </DisclosureButton>
+                        );
+                      })}
+                    </DisclosurePanel>
+                  </Disclosure>
+                )}
                 <a
                   href="/product"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-blue-900 hover:bg-blue-100"
@@ -271,14 +315,43 @@ export default function Header() {
                 >
                   Về chúng tôi
                 </a>
-              </div>
-              <div className="py-6">
-                <a
-                  href="/login"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-blue-900 hover:bg-blue-100"
-                >
-                  Đăng nhập
-                </a>
+                {user ? (
+                  <>
+                    <a
+                      href="/detail"
+                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-[#3b82f6] hover:bg-blue-100"
+                    >
+                      {user.username.toUpperCase()}
+                    </a>
+                    <button
+                      onClick={logout}
+                      className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-red-600 hover:text-red-800 hover:bg-blue-100"
+                    >
+                      Đăng xuất
+                    </button>
+                    <button
+                      onClick={() => (window.location.href = "/cart")}
+                      className="relative -mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-blue-900 hover:bg-blue-100"
+                    >
+                      <span className="flex items-center">
+                        <ShoppingCartIcon className="h-6 w-6 mr-2 text-blue-900" />
+                        Giỏ hàng
+                        {cartCount > 0 && (
+                          <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                            {cartCount}
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <a
+                    href="/login"
+                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-blue-900 hover:text-[#8be76f] hover:bg-blue-100"
+                  >
+                    Đăng nhập
+                  </a>
+                )}
               </div>
             </div>
           </div>

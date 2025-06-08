@@ -4,8 +4,8 @@ const getAllUsers = async () => {
     const response = await userApi.getAll();
     return response.data.data.map(item => ({
         id: item.userId,
-        userName: item.username,
-        fullName: item.fullName,
+        username: item.username,
+        fullname: item.fullname,
         email: item.email,
         phone: item.phone,
         address: item.address,
@@ -14,6 +14,7 @@ const getAllUsers = async () => {
         createdAt: item.createdAt,
     }))
 }
+
 
 const getUserByUserName = async (username) => {
     const response = await userApi.getByUserName(username);

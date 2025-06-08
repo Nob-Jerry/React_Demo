@@ -13,6 +13,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -23,18 +24,19 @@ export default function Login() {
       await login({ username, password });
       const userData = JSON.parse(localStorage.getItem("user")) || {};
       const userId = userData.userId;
-
       try {
         const cartData = await cartApi.getCart(userId);
-        console.log("Cart data:", cartData);
         localStorage.setItem("cartId", cartData.data.data.cartId || "");
         localStorage.setItem(
           "cart",
           JSON.stringify(cartData.data.data.cartItems || [])
         );
+        console.log(cartData.data.data);
         setCart(cartData.data.data.cartItems || []);
       } catch (error) {
-        console.error("Error fetching cart data:", error);
+        console.error("Lỗi lấy giỏ hàng:", error);
+        const backendMsg = error.response?.data?.message;
+        setError(backendMsg || "Đăng nhập thất bại");
       } finally {
         Swal.fire({
           icon: "success",
@@ -43,8 +45,8 @@ export default function Login() {
           timer: 1500,
           showConfirmButton: false,
           timerProgressBar: true,
-        }).then(() => {
-          window.location.href = "/";
+          }).then(() => {
+            window.location.href = "/";
         });
       }
     } catch (error) {
@@ -54,6 +56,7 @@ export default function Login() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="flex h-auto items-center justify-center bg-blue-100 dark:bg-dark">

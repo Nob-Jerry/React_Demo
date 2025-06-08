@@ -1,9 +1,11 @@
 import { getAllProducts } from "../service/productService";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProduct } from "../context/ProductContext";
 
 export default function Home() {
-  const [products, setProducts] = useState([]);
+  const [homeProducts, setHomeProducts] = useState([]);
+  const { setProducts } = useProduct();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -15,18 +17,27 @@ export default function Home() {
   useEffect(() => {
     setLoading(true);
     getAllProducts()
-      .then(setProducts)
+      .then((data) => {
+        setHomeProducts(data);
+        setProducts(data);
+      })
       .catch((err) =>
         setError(err?.response?.data?.message || "Lỗi khi tải sản phẩm")
       )
       .finally(() => setLoading(false));
-  }, []);
+  }, [setProducts]);
+  
+  localStorage.setItem("products", homeProducts);
 
-  const hotProducts = products
+  if (!homeProducts) {
+    console.log(error);
+  }
+
+  const hotProducts = homeProducts
     .filter((product) => product.isHot === true)
     .slice(0, 4);
 
-  const newProducts = products
+  const newProducts = homeProducts
     .filter((product) => product.isNew === true)
     .slice(0, 6);
 
@@ -83,7 +94,7 @@ export default function Home() {
                     <img
                       alt={product.productName}
                       className="object-cover w-full h-52"
-                      src={product.productImage}
+                      src={`/img/${product.productImage}`}
                     />
                     <div className="p-5 flex flex-col gap-2">
                       <a
@@ -129,7 +140,7 @@ export default function Home() {
                     <img
                       alt=""
                       className="object-cover w-full h-44"
-                      src={product.productImage}
+                      src={`/img/${product.productImage}`}
                     />
                     <div className="p-5 space-y-2">
                       <h3 className="text-xl font-semibold text-gray-800">
