@@ -9,49 +9,54 @@ export default function Signup() {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
     fullname: "",
     phone: "",
-    address: ""
+    address: "",
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
-    // Regex validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-    const phoneRegex = /^0\d{9}$/;
 
     if (!emailRegex.test(User.email)) {
       setError("Email không hợp lệ.");
       return;
     }
+
     if (!passwordRegex.test(User.password)) {
       setError("Mật khẩu phải trên 6 ký tự, gồm ít nhất 1 chữ và 1 số.");
       return;
     }
-    // if (!phoneRegex.test(User.phone)) {
-    //   setError("Số điện thoại phải bắt đầu bằng 0 và đủ 10 số.");
-    //   return;
-    // }
+
+    if (User.password !== User.confirmPassword) {
+      setError("Xác nhận mật khẩu không khớp.");
+      return;
+    }
 
     setLoading(true);
     try {
-      const payload = { ...User };
+      const payload = {
+        username: User.username,
+        email: User.email,
+        password: User.password,
+        confirmPassword: User.confirmPassword,
+      };
+
       const res = await authApi.signup(payload);
       console.log(res);
+
       Swal.fire({
         icon: "success",
-        title: "Tạo tài khoản thành công!",
-        text: "Bạn sẽ được chuyển đến trang đăng nhập.",
-        timer: 1500,
-        timerProgressBar: true,
-        showConfirmButton: false
-      });
-      setTimeout(() => {
+        title: "Đăng ký thành công!",
+        text: "Vui lòng kiểm tra email của bạn để xác minh tài khoản.",
+        confirmButtonText: "OK",
+      }).then(() => {
         window.location.href = "/login";
-      }, 2000);
+      });
     } catch (err) {
       const message =
         err?.response?.data?.message ||
@@ -60,7 +65,7 @@ export default function Signup() {
       Swal.fire({
         icon: "error",
         title: "Tạo tài khoản thất bại",
-        text: message
+        text: message,
       });
       setError(message);
       console.error(message);
@@ -84,75 +89,75 @@ export default function Signup() {
                 </p>
 
                 <form onSubmit={handleSubmit}>
-                  {/* <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Họ tên</label>
-                    <input
-                      type="text"
-                      value={User.fullname}
-                      onChange={(e) => setUser({ ...User, fullname: e.target.value })}
-                      placeholder="Nhập họ tên"
-                      className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
-                    />
-                  </div> */}
-
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Tên đăng nhập</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">
+                      Tên đăng nhập
+                    </label>
                     <input
                       type="text"
                       value={User.username}
-                      onChange={(e) => setUser({ ...User, username: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...User, username: e.target.value })
+                      }
                       placeholder="Tên đăng nhập"
+                      required
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Email</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">
+                      Email
+                    </label>
                     <input
                       type="email"
                       value={User.email}
-                      onChange={(e) => setUser({ ...User, email: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...User, email: e.target.value })
+                      }
                       placeholder="Email"
+                      required
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
                   </div>
 
                   <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Mật khẩu</label>
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">
+                      Mật khẩu
+                    </label>
                     <input
                       type="password"
                       value={User.password}
-                      onChange={(e) => setUser({ ...User, password: e.target.value })}
+                      onChange={(e) =>
+                        setUser({ ...User, password: e.target.value })
+                      }
                       placeholder="Mật khẩu"
+                      required
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
                   </div>
-                  
 
-                  {/* <div className="mb-4">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Số điện thoại</label>
+                  <div className="mb-4">
+                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">
+                      Xác nhận mật khẩu
+                    </label>
                     <input
-                      type="number"
-                      value={User.phone}
-                      onChange={(e) => setUser({ ...User, phone: e.target.value })}
-                      placeholder="SĐT"
+                      type="password"
+                      value={User.confirmPassword}
+                      onChange={(e) =>
+                        setUser({ ...User, confirmPassword: e.target.value })
+                      }
+                      placeholder="Nhập lại mật khẩu"
+                      required
                       className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
                     />
-                  </div> */}
-
-                  {/* <div className="mb-6">
-                    <label className="block text-sm text-gray-700 dark:text-[#3935ad] mb-1">Địa chỉ</label>
-                    <input
-                      type="text"
-                      value={User.address}
-                      onChange={(e) => setUser({ ...User, address: e.target.value })}
-                      placeholder="Địa chỉ"
-                      className="w-full rounded-sm bg-blue-50 px-4 py-2 text-gray-700 outline-none focus:bg-white"
-                    />
-                  </div> */}
-                  <div className="flex items-center justify-center mb-4">
-                    {error && <p className="mb-4 text-red-500 text-sm">{error}</p>}
                   </div>
+
+                  {error && (
+                    <div className="mb-4 text-center text-red-500 text-sm">
+                      {error}
+                    </div>
+                  )}
 
                   <div className="mb-4">
                     <button

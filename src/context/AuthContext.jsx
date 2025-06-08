@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const { accessToken, user } = await authApi.login(credentials);
-
     setToken(accessToken);
     setUser(user);
   };

@@ -27,13 +27,15 @@ const authApi = {
             username: User.username,
             email: User.email,
             password: User.password,
-            fullname: User.fullname,
-            phone: User.phone,
-            address: User.address
+            confirmPassword: User.confirmPassword
         };
-        const res = await axiosClient.post('/user/save', payload);
+        const res = await axiosClient.post('/auth/register', payload);
         return res.data;
     },
+    verify: async (activationToken) => {
+        const response = await axiosClient.get(`/verify/email?activationToken=${activationToken}`);
+        return response.data;
+    }
 };
 
 export default authApi;
