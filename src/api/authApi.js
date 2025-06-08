@@ -16,7 +16,15 @@ const authApi = {
         return { accessToken, user };
     },
 
-    resetPassword: async (data) => {
+    logout: async (token) =>{
+        try {
+            await axiosClient.post('/auth/logout', token)
+        }catch (error){
+            console.log("Logout fail! "+error)
+        }
+    },
+
+    changePassword: async (data) => {
         const res = await axiosClient.post(`auth/update-password`, data);
         console.log(res.data)
         return res.data;
@@ -35,6 +43,14 @@ const authApi = {
     verify: async (activationToken) => {
         const response = await axiosClient.get(`/verify/email?activationToken=${activationToken}`);
         return response.data;
+    },
+    forgotPassword: async(email) => {
+        const response = await axiosClient.post(`/auth/forgot-password?email=${email}`)
+        return response.data
+    },
+    resetPassword: async(data) => {
+        const response = await axiosClient.post('/auth/reset-password', data)
+        return response.data
     }
 };
 

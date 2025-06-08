@@ -21,7 +21,7 @@ export default function ResetPassword() {
     try {
       const payload = { username, oldPass, newPass, confirmPass };
 
-      const res = await authApi.resetPassword(payload);
+      const res = await authApi.changePassword(payload);
       console.log(payload);
       setInfo(res?.message || "Đổi mật khẩu thành công");
       setTimeout(() => {

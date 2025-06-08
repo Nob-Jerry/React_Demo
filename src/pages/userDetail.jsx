@@ -226,17 +226,27 @@ export default function UserDetailPage() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className={`w-full py-2 rounded-lg text-white font-semibold transition ${
-            saving
-              ? "bg-blue-300 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {saving ? "Đang lưu..." : "Lưu thay đổi"}
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className={`w-full sm:w-1/2 py-2 rounded-lg text-white font-semibold transition ${
+              saving
+                ? "bg-blue-300 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+            {saving ? "Đang lưu..." : "💾 Lưu thay đổi"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/change-password")}
+            className="w-full sm:w-1/2 py-2 rounded-lg border border-blue-500 text-blue-600 font-semibold hover:bg-blue-50 transition"
+          >
+            🔐 Đổi mật khẩu
+          </button>
+        </div>
       </form>
     </div>
   );
