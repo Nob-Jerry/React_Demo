@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    authApi.logout({token: token});
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
     localStorage.removeItem('cartId');

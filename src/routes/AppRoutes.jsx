@@ -13,7 +13,9 @@ import UserM from "../manage/UserM";
 import ProductM from "../manage/ProductM";
 import CategoryM from "../manage/CategoryM";
 import UserDetail from "../pages/userDetail";
-import ResetPassword from "../pages/ResetPassword";
+import ChangePassword from "../pages/ChangePassword";
+import ResetPassword from "../components/ResetPassword";
+import FogotPassword from "../components/ForgotPassword";
 import ProductDetail from "../pages/ProductDetail";
 import VerifyPage from "../components/VerifyPage";
 import Cart from "../pages/Cart";
@@ -30,7 +32,10 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyPage />} />
       <Route path="/category/:id" element={<Category />} />
       <Route path="/product/:id" element={<ProductDetail />} />
+      <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/forgot-password" element={<FogotPassword />} />
+
 
       {/* Chưa đăng nhập  */}
       <Route element={<PublicRoute />}>
