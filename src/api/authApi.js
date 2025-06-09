@@ -51,6 +51,19 @@ const authApi = {
     resetPassword: async(data) => {
         const response = await axiosClient.post('/auth/reset-password', data)
         return response.data
+    },
+    loginGoogle: async(data) => {
+        const response = await axiosClient.post('/auth/google-login', data)
+        const accessToken = response.data.accessToken;
+        const payload = parseJwt(accessToken);
+        const user = {
+            userId: payload.id,
+            username: payload.sub,
+            role: payload.scope
+        }
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('user', JSON.stringify(user));
+        return { accessToken, user };
     }
 };
 

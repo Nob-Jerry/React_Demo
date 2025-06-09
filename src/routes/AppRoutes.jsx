@@ -19,6 +19,10 @@ import FogotPassword from "../components/ForgotPassword";
 import ProductDetail from "../pages/ProductDetail";
 import VerifyPage from "../components/VerifyPage";
 import Cart from "../pages/Cart";
+import CheckoutPage from "../pages/Checkout";
+import PaymentPage from "../components/Payment";
+import OrderHistory from "../pages/OrderHistory";
+import OrderManage from "../manage/OrderManage";
 
 function AppRoutes() {
   return (
@@ -47,6 +51,9 @@ function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route path="/detail" element={<UserDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/orders" element={<OrderHistory />} />
       </Route>
 
       {/* quyền admin */}
@@ -55,6 +62,7 @@ function AppRoutes() {
         <Route path="/management/category" element={<CategoryM />} />
         <Route path="/management/product" element={<ProductM />} />
         <Route path="/management/user" element={<UserM />} />
+        <Route path="/management/order" element={<OrderManage />} />
       </Route>
     </Routes>
   );

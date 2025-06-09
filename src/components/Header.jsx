@@ -63,7 +63,7 @@ export default function Header() {
     { label: "Quản lý tài khoản", href: "/management/user" },
     { label: "Quản lý sản phẩm", href: "/management/product" },
     { label: "Quản lý danh mục", href: "/management/category" },
-    { label: "Quản lý đặt hàng", href: "/admin/orders" },
+    { label: "Quản lý đặt hàng", href: "/management/order" },
   ];
 
   return (
@@ -171,10 +171,10 @@ export default function Header() {
             Sản phẩm
           </a>
           <a
-            href="/cart"
+            href="/orders"
             className="font-semibold text-[20px] text-blue-900 hover:text-[#8be76f] "
           >
-            Giỏ hàng
+            Đơn hàng
           </a>
           <a
             href="/about"
@@ -196,7 +196,9 @@ export default function Header() {
           <div className="hidden lg:flex lg:items-center lg:space-x-6 pl-[100px] text-[20px]">
             <span className="text-blue-900 font-semibold ">
               <a href="/detail" className="text-[#3b82f6]">
-                {user.username.toUpperCase()}
+                {user.username.length > 6
+                  ? user.username.substring(0, 6).toUpperCase() + "..."
+                  : user.username.toUpperCase()}
               </a>
             </span>
             <button
@@ -304,10 +306,10 @@ export default function Header() {
                   Sản phẩm
                 </a>
                 <a
-                  href="/cart"
+                  href="/orders"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-blue-900 hover:bg-blue-100"
                 >
-                  Giỏ hàng
+                  Đơn hàng
                 </a>
                 <a
                   href="/about"
@@ -321,27 +323,29 @@ export default function Header() {
                       href="/detail"
                       className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-[#3b82f6] hover:bg-blue-100"
                     >
-                      {user.username.toUpperCase()}
+                      {user.username.length > 6
+                        ? user.username.substring(0, 6).toUpperCase() + "..."
+                        : user.username.toUpperCase()}
                     </a>
+                    <button
+                      aria-label="Giỏ hàng"
+                      className="relative hover:scale-110 transition cursor-pointer"
+                      onClick={() => {
+                        window.location.href = "/cart";
+                      }}
+                    >
+                      <ShoppingCartIcon className="h-6 w-6 text-blue-900" />
+                      {cartCount > 0 && (
+                        <span className="absolute -top-1 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                          {cartCount}
+                        </span>
+                      )}
+                    </button>
                     <button
                       onClick={logout}
                       className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-red-600 hover:text-red-800 hover:bg-blue-100"
                     >
                       Đăng xuất
-                    </button>
-                    <button
-                      onClick={() => (window.location.href = "/cart")}
-                      className="relative -mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-blue-900 hover:bg-blue-100"
-                    >
-                      <span className="flex items-center">
-                        <ShoppingCartIcon className="h-6 w-6 mr-2 text-blue-900" />
-                        Giỏ hàng
-                        {cartCount > 0 && (
-                          <span className="ml-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                            {cartCount}
-                          </span>
-                        )}
-                      </span>
                     </button>
                   </>
                 ) : (
