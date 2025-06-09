@@ -15,4 +15,14 @@ const saveOrder = async (request) => {
     return response.data.data;
 }
 
-export { orderById, orderByUsder, saveOrder };
+const updateOrderStatus = async (updateRequest) => {
+    const response = await orderApi.updateOrderStatus(updateRequest);
+    return response.data;
+}
+
+const getAllOrder = async () => {
+    const response = await orderApi.getAllOrder();
+    return response.data.data;
+}
+
+export { orderById, orderByUsder, saveOrder, updateOrderStatus, getAllOrder };

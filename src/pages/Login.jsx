@@ -3,16 +3,54 @@ import { useCart } from "../context/CartContext";
 import cartApi from "../api/cartApi";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const { setCart } = useCart();
-  const { login } = useAuth();
+  const { login, loginGoogle } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
 
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      await loginGoogle(credentialResponse.credential);
+      const userData = JSON.parse(localStorage.getItem("user")) || {};
+      const userId = userData.userId;
+      try {
+        const cartData = await cartApi.getCart(userId);
+        localStorage.setItem("cartId", cartData.data.data.cartId || "");
+        localStorage.setItem(
+          "cart",
+          JSON.stringify(cartData.data.data.cartItems || [])
+        );
+        console.log(cartData.data.data);
+        setCart(cartData.data.data.cartItems || []);
+      } catch (error) {
+        console.error("Lỗi lấy giỏ hàng:", error);
+        const backendMsg = error.response?.data?.message;
+        setError(backendMsg || "Đăng nhập thất bại");
+      } finally{
+        Swal.fire({
+          icon: "success",
+          title: "Đăng nhập Google thành công",
+          timer: 1200,
+          showConfirmButton: false,
+        // }).then(() => {
+        //   window.location.href = "/";
+        });
+      }
+    
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Đăng nhập Google thất bại",
+        text: err.message || "Vui lòng thử lại!",
+      });
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -150,19 +188,26 @@ export default function Login() {
                       {loading ? "Signing in..." : "Sign in"}
                     </button>
                   </div>
-                  <button className="mb-6 flex w-full items-center justify-center rounded-sm bg-white px-6 py-3 text-base text-gray-700 shadow hover:bg-blue-50">
-                    <span className="mr-3">
-                      <img
-                        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                        alt="Google logo"
-                        className="h-6 w-6"
-                      />
-                    </span>
-                    Sign in with Google
-                  </button>
+                  <div className="mb-6 flex w-full items-center justify-center">
+                    <GoogleLogin
+                      onSuccess={handleGoogleLogin}
+                      onError={() => {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Đăng nhập Google thất bại",
+                          text: "Vui lòng thử lại!",
+                        });
+                      }}
+                      style={{ width: "100%" }}
+                      size="large"
+                      shape="rectangular"
+                      text="signin_with"
+                      theme="outline"
+                    />
+                  </div>
                 </form>
                 <p className="text-center text-base font-medium text-gray-600">
-                  Don’t you have an account?{" "}
+                  Don't you have an account?{" "}
                   <a href="/signup" className="text-blue-600 hover:underline">
                     Sign up
                   </a>

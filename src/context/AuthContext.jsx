@@ -18,6 +18,14 @@ export const AuthProvider = ({ children }) => {
     setUser(user);
   };
 
+  const loginGoogle = async (ggToken) => {
+    const { accessToken, user } = await authApi.loginGoogle({ggToken});
+    setToken(accessToken);
+    setUser(user);
+    console.log(ggToken);
+  };
+  
+
   const logout = () => {
     authApi.logout({token: token});
     localStorage.removeItem('accessToken');
@@ -38,7 +46,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loginGoogle }}>
       {children}
     </AuthContext.Provider>
   );

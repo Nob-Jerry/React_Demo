@@ -12,4 +12,9 @@ const updateCartItem = async (cartItem) => {
     return response.data.data;
 }
 
-export {getCartItem, updateCartItem}
+const deleteListCartItem = async (userId, productIdList) => {
+    const response = await cartApi.deleteListCartItem(userId, productIdList);
+    return response.data;
+}
+
+export {getCartItem, updateCartItem, deleteListCartItem}
