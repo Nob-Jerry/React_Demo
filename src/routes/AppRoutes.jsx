@@ -19,6 +19,8 @@ import FogotPassword from "../components/ForgotPassword";
 import ProductDetail from "../pages/ProductDetail";
 import VerifyPage from "../components/VerifyPage";
 import Cart from "../pages/Cart";
+import CheckoutPage from "../pages/Checkout";
+import PaymentPage from "../components/Payment";
 
 function AppRoutes() {
   return (
@@ -47,6 +49,8 @@ function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route path="/detail" element={<UserDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/payment" element={<PaymentPage />} />
       </Route>
 
       {/* quyền admin */}
