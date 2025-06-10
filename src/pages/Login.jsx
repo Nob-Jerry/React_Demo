@@ -38,8 +38,8 @@ export default function Login() {
           title: "Đăng nhập Google thành công",
           timer: 1200,
           showConfirmButton: false,
-        // }).then(() => {
-        //   window.location.href = "/";
+        }).then(() => {
+          window.location.href = "/";
         });
       }
     
@@ -122,7 +122,7 @@ export default function Login() {
                       name="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter your Email"
+                      placeholder="Enter your username"
                       className="w-full rounded-sm bg-blue-50 px-6 py-3 text-base text-gray-700 outline-none transition-all duration-300 focus:bg-white focus:outline-none"
                       required
                     />
@@ -189,21 +189,28 @@ export default function Login() {
                     </button>
                   </div>
                   <div className="mb-6 flex w-full items-center justify-center">
-                    <GoogleLogin
-                      onSuccess={handleGoogleLogin}
-                      onError={() => {
-                        Swal.fire({
-                          icon: "error",
-                          title: "Đăng nhập Google thất bại",
-                          text: "Vui lòng thử lại!",
-                        });
-                      }}
-                      style={{ width: "100%" }}
-                      size="large"
-                      shape="rectangular"
-                      text="signin_with"
-                      theme="outline"
-                    />
+                    <div className="w-full">
+                      <GoogleLogin
+                        onSuccess={handleGoogleLogin}
+                        onError={() => {
+                          Swal.fire({
+                            icon: "error",
+                            title: "Đăng nhập Google thất bại",
+                            text: "Vui lòng thử lại!",
+                          });
+                        }}
+                        style={{ 
+                          width: "100%",
+                          height: "48px",
+                          fontSize: "16px",
+                          fontWeight: "500"
+                        }}
+                        size="large"
+                        shape="rectangular"
+                        text="signin_with"
+                        theme="outline"
+                      />
+                    </div>
                   </div>
                 </form>
                 <p className="text-center text-base font-medium text-gray-600">
