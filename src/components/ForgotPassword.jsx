@@ -18,7 +18,8 @@ const ForgotPassword = () => {
       );
     } catch (error) {
       console.log(error);
-      Swal.fire("Lỗi", "Email không tồn tại hoặc có lỗi xảy ra", "error");
+      const backendMsg = error.response?.data?.message;
+      Swal.fire("Lỗi", backendMsg || "Email không tồn tại hoặc có lỗi xảy ra", "error");
     } finally {
       setLoading(false);
     }
