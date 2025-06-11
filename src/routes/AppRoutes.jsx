@@ -36,7 +36,6 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyPage />} />
       <Route path="/category/:id" element={<Category />} />
       <Route path="/product/:id" element={<ProductDetail />} />
-      <Route path="/change-password" element={<ChangePassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/forgot-password" element={<FogotPassword />} />
 
@@ -54,6 +53,7 @@ function AppRoutes() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/orders" element={<OrderHistory />} />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Route>
 
       {/* quyền admin */}
