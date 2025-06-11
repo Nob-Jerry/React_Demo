@@ -229,7 +229,7 @@ export default function OrderHistory() {
                     {order.paymentMethod && getPaymentMethodBadge(order.paymentMethod)}
                   </div>
                   <div className="text-sm text-gray-600 mt-2 md:mt-0">
-                    {formatDate(order.createdAt)}
+                    {formatDate(order.orderDate)}
                   </div>
                 </div>
 

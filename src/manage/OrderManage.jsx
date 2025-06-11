@@ -37,6 +37,7 @@ export default function OrderManage() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updating, setUpdating] = useState(false);
+  const [searchName, setSearchName] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -71,24 +72,41 @@ export default function OrderManage() {
     ? orders
     : orders.filter((o) => o.status === statusFilter);
 
+  const searchedOrders = searchName.trim() === ""
+    ? filteredOrders
+    : filteredOrders.filter((o) =>
+        (o.fullName || o.receiverName || "")
+          .toLowerCase()
+          .includes(searchName.trim().toLowerCase())
+      );
+
   return (
     <div className="p-6 bg-blue-50 min-h-screen">
       <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <h1 className="text-3xl font-bold text-sky-800">Quản lý đơn hàng</h1>
-          <select
-            value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value)}
-            className="border rounded-lg px-4 py-2 text-base"
-          >
-            {STATUS_OPTIONS.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-2 w-full md:w-auto">
+            <select
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="border rounded-lg px-4 py-2 text-base"
+            >
+              {STATUS_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Tìm kiếm theo tên khách hàng..."
+              value={searchName}
+              onChange={e => setSearchName(e.target.value)}
+              className="border rounded-lg px-4 py-2 text-base w-full md:w-72"
+            />
+          </div>
         </div>
         {loading ? (
           <div className="text-center text-sky-700 py-10">Đang tải đơn hàng...</div>
-        ) : filteredOrders.length === 0 ? (
+        ) : searchedOrders.length === 0 ? (
           <div className="text-center text-gray-500 py-10">Không có đơn hàng nào</div>
         ) : (
           <div className="overflow-x-auto">
@@ -105,10 +123,10 @@ export default function OrderManage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map(order => (
+                {searchedOrders.map(order => (
                   <tr key={order.orderId} className="text-center border-b hover:bg-blue-50">
                     <td className="p-2 font-semibold text-sky-800">{order.orderId}</td>
-                    <td className="p-2">{order.username || order.receiverName}</td>
+                    <td className="p-2">{order.fullName || order.receiverName}</td>
                     <td className="p-2">{formatDate(order.orderDate)}</td>
                     <td className="p-2 font-bold text-blue-700">{formatPrice(order.totalAmount)}</td>
                     <td className="p-2">{statusBadge(order.status)}</td>

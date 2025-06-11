@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import cartApi from "../api/cartApi";
 import Swal from "sweetalert2";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -39,6 +41,9 @@ const CartPage = () => {
           item.cartItemId === id ? { ...item, quantity: newQuantity } : item
         )
       );
+      if (delta > 0) {
+        toast.success("Cập nhật thành công", { autoClose: 1200 });
+      }
     } catch (error) {
       console.log(error);
     }
@@ -251,6 +256,7 @@ const CartPage = () => {
         <h1 className="text-2xl font-bold text-sky-800">Giỏ hàng của bạn</h1>
         {cartContent}
       </div>
+      <ToastContainer position="top-right" autoClose={1200} hideProgressBar />
     </div>
   );
 };
