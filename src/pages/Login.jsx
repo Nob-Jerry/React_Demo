@@ -38,8 +38,8 @@ export default function Login() {
           title: "Đăng nhập Google thành công",
           timer: 1200,
           showConfirmButton: false,
-        // }).then(() => {
-        //   window.location.href = "/";
+        }).then(() => {
+          window.location.href = "/";
         });
       }
     
